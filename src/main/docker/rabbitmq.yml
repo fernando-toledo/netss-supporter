@@ -1,0 +1,13 @@
+version: '2'
+services:
+    rabbit:
+      image: "rabbitmq:3-management"
+      hostname: "rabbit"
+      environment:
+        RABBITMQ_DEFAULT_USER: "guest"
+        RABBITMQ_DEFAULT_PASS: "guest"
+      ports:
+        - "15672:15672"
+        - "5672:5672"
+      labels:
+        NAME: "rabbitmq"

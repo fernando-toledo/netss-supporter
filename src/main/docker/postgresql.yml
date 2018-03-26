@@ -1,0 +1,9 @@
+version: '2'
+services:
+    netss-postgresql:
+        image: postgres:9.6.5
+        environment:
+            - POSTGRES_USER=netss_campaign
+            - POSTGRES_PASSWORD=
+        ports:
+            - 5432:5432
