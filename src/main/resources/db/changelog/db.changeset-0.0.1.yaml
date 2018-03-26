@@ -29,7 +29,12 @@ databaseChangeLog:
                     primaryKey: false
                     nullable: true
               - column:
-                  name: email
+                    name: supporter_name
+                    type: varchar(100)
+                    constraints:
+                     nullable: false
+              - column:
+                  name: supporterEmail
                   type: varchar(100)
                   constraints:
                     nullable: false
@@ -39,7 +44,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: birthday
+                  name: supporter_birthday
                   type: DATE
                   constraints:
                     nullable: false
