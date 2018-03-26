@@ -4,20 +4,20 @@ services:
         image: supporter
         environment:
             - SPRING_PROFILES_ACTIVE=prod
-            - SPRING_DATASOURCE_URL=jdbc:postgresql://netss-postgresql:5432/netss_campaign
-            - SPRING_RABBIT_HOST=netss-rabbit:5672
+            - SPRING_DATASOURCE_URL=jdbc:postgresql://netss-supporter-postgresql:5433/supporter
+            - SPRING_RABBIT_HOST=netss-rabbit:5673
             - APP_SLEEP=10 # gives time for the database to boot before the application
         ports:
-            - 8080:8080
+            - 8081:8080
         depends_on:
-            - netss-postgresql
-            - netss-rabbit
+            - netss-supporter-postgresql
+            - netss-supporter-rabbit
     netss-postgresql:
         extends:
             file: postgresql.yml
-            service: netss-postgresql
+            service: netss-supporter-postgresql
     netss-rabbit:
         extends:
             file: rabbitmq.yml
-            service: rabbit
+            service: rabbit-supporter
 

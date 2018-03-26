@@ -17,7 +17,7 @@ logging:
 
 spring:
     profiles:
-        active: dev
+        active: prod
     devtools:
         restart:
             enabled: false
@@ -26,8 +26,8 @@ spring:
 
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:postgresql://localhost:5432/netss_campaign?useSSL=false
-        username: netss_campaign
+        url: jdbc:postgresql://192.168.99.100:5433/supporter?useSSL=false
+        username: supporter
         password:
         useSSL: false
     jpa:
@@ -42,7 +42,7 @@ spring:
             hibernate.cache.use_minimal_puts: true
     rabbitmq:
             host: 192.168.99.100
-            port: 5672
+            port: 5673
             username: guest
             password: guest
 

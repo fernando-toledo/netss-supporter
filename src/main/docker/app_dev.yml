@@ -1,11 +1,11 @@
 version: '2'
 services:
-    netss-postgresql:
+    netss-supporter-postgresql:
         extends:
             file: postgresql.yml
-            service: netss-postgresql
-    netss-rabbit:
+            service: netss-supporter-postgresql
+    netss-supporter-rabbit:
         extends:
             file: rabbitmq.yml
-            service: rabbit
+            service: rabbit-supporter
 

@@ -26,8 +26,8 @@ spring:
     cloud:
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:h2:mem:netss_campaign?useSSL=false;DB_CLOSE_DELAY=-1
-        username: netss_campaign
+        url: jdbc:h2:mem:supporter?useSSL=false;DB_CLOSE_DELAY=-1
+        username: supporter
         password:
     h2:
         console:

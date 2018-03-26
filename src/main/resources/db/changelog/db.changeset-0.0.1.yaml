@@ -12,7 +12,8 @@ databaseChangeLog:
             incrementBy: 50
 
         - createTable:
-            tableName: supporter
+            schemaName: public
+            tableName: supporters
             columns:
               - column:
                   name: id
@@ -43,4 +44,34 @@ databaseChangeLog:
                   type: DATE
                   constraints:
                     nullable: false
+
+    - changeSet:
+
+        id: 2
+        author: fernandotoledo
+        changes:
+
+        - createTable:
+            schemaName: public
+            tableName: supporter_campaign
+            columns:
+              - column:
+                    name: id
+                    type: bigint
+                    autoIncrement: true
+                    constraints:
+                        primaryKey: true
+                        nullable: false
+              - column:
+                    name: supporter_id
+                    type: bigint
+                    constraints:
+                        nullable: false
+              - column:
+                    name: campaign_id
+                    type: bigint
+                    constraints:
+                        primaryKey: false
+                        nullable: false
+
 
