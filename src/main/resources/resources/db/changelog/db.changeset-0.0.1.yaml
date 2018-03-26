@@ -1,0 +1,46 @@
+databaseChangeLog:
+
+    - changeSet:
+
+        id: 1
+        author: fernandotoledo
+        changes:
+
+        - createSequence:
+            sequenceName: hibernate_sequence
+            startValue: 1000000
+            incrementBy: 50
+
+        - createTable:
+            tableName: supporter
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: uuid
+                  type: uuid
+                  autoIncrement: false
+                  constraints:
+                    primaryKey: false
+                    nullable: true
+              - column:
+                  name: email
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: team_id
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: birthday
+                  type: DATE
+                  constraints:
+                    nullable: false
+
