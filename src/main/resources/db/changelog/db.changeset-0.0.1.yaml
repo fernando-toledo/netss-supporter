@@ -12,7 +12,6 @@ databaseChangeLog:
             incrementBy: 50
 
         - createTable:
-            schemaName: public
             tableName: supporters
             columns:
               - column:
@@ -52,7 +51,6 @@ databaseChangeLog:
         changes:
 
         - createTable:
-            schemaName: public
             tableName: supporter_campaign
             columns:
               - column:
@@ -60,7 +58,6 @@ databaseChangeLog:
                     type: bigint
                     autoIncrement: true
                     constraints:
-                        primaryKey: true
                         nullable: false
               - column:
                     name: supporter_id
@@ -73,5 +70,27 @@ databaseChangeLog:
                     constraints:
                         primaryKey: false
                         nullable: false
+
+    - changeSet:
+
+            id: 3
+            author: fernandotoledo
+            changes:
+
+            - addUniqueConstraint:
+                columnNames: id, supporter_id, campaign_id
+                constraintName: pk_supporter_campaign
+                schemaName: public
+                tableName: supporter_campaign
+
+            - addForeignKeyConstraint:
+                schemaName: public
+                baseColumnNames: supporter_id
+                baseTableName: supporter_campaign
+                constraintName: fk_supporter_campaign
+                onDelete: CASCADE
+                onUpdate: RESTRICT
+                referencedColumnNames: id
+                referencedTableName: supporters
 
 
