@@ -2,7 +2,6 @@ package com.netss.supporter.exception;
 
 import com.netss.supporter.exception.helper.ApiError;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

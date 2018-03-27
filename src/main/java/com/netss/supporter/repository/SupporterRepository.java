@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 
 /**
- * Spring Data JPA repository for the Campaign entity.
+ * Spring Data JPA repository for the Supporter entity.
  */
 @Repository
 public interface SupporterRepository extends JpaRepository<Supporter, Long> {

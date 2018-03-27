@@ -14,7 +14,7 @@ import java.util.List;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@RequestMapping(path = "/campaigns", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/supporters", produces = APPLICATION_JSON_VALUE)
 public class SupporterResource {
 
     private final SupporterService supporterService;
@@ -25,13 +25,13 @@ public class SupporterResource {
         this.supporterRepository = supporterRepository;
     }
 
-    @GetMapping("/{campaignId}")
+    @GetMapping("/{supportId}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Supporter> get(@PathVariable(value="supporterId") Long campaignId) {
+    public ResponseEntity<Supporter> get(@PathVariable(value="supportId") Long id) {
         return supporterRepository
-            .findById(campaignId)
+            .findById(id)
             .map(c -> ResponseEntity.ok(c))
-            .orElse(ResponseEntity.noContent().build()) ;
+            .orElse(ResponseEntity.notFound().build()) ;
     }
 
     @GetMapping

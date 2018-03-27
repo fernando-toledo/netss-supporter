@@ -83,5 +83,14 @@ public class Campaign extends Observable implements Serializable {
         return result;
     }
 
-
+    @Override
+    public String toString() {
+        return "Campaign{" +
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", teamId='" + teamId + '\'' +
+            ", campaignStart=" + campaignStart +
+            ", campaignEnd=" + campaignEnd +
+            '}';
+    }
 }
