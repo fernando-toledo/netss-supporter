@@ -19,7 +19,7 @@ public class SupporterService {
         Supporter oldSupporter = supporterRepository.getOne(supporter.getId());
 
         oldSupporter.setName(supporter.getName());
-        oldSupporter.setSupporterEmail(supporter.getSupporterEmail());
+        oldSupporter.setEmail(supporter.getEmail());
         oldSupporter.setBirthday(supporter.getBirthday());
         oldSupporter.setTeamId(supporter.getTeamId());
         oldSupporter = supporterRepository.save(oldSupporter);

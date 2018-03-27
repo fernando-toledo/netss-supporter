@@ -34,7 +34,7 @@ databaseChangeLog:
                     constraints:
                      nullable: false
               - column:
-                  name: supporterEmail
+                  name: supporter_email
                   type: varchar(100)
                   constraints:
                     nullable: false
@@ -78,9 +78,9 @@ databaseChangeLog:
 
     - changeSet:
 
-            id: 3
-            author: fernandotoledo
-            changes:
+        id: 3
+        author: fernandotoledo
+        changes:
 
             - addUniqueConstraint:
                 columnNames: id, supporter_id, campaign_id
@@ -98,4 +98,15 @@ databaseChangeLog:
                 referencedColumnNames: id
                 referencedTableName: supporters
 
+    - changeSet:
+
+        id: 4
+        author: fernandotoledo
+        changes:
+
+        - addUniqueConstraint:
+              columnNames: supporter_email
+              constraintName: const_supporter_email
+              schemaName: public
+              tableName: supporters
 

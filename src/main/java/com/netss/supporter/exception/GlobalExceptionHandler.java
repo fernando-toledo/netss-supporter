@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 //TODO: user=fh message='improve exception handling'
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler  {
 
     @ExceptionHandler(value = { Exception.class })
     protected ResponseEntity<String> generalHandler() {

@@ -46,7 +46,7 @@ spring:
         cache-seconds: 1
     rabbitmq:
             host: 192.168.99.100
-            port: 5672
+            port: 5673
             username: guest
             password: guest
 

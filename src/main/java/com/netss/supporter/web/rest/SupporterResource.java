@@ -1,4 +1,4 @@
-package com.netss.supporter.rest;
+package com.netss.supporter.web.rest;
 
 
 import com.netss.supporter.domain.Supporter;

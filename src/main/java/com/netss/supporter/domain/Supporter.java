@@ -13,7 +13,7 @@ import java.util.Observable;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Table(name = "supporter")
+@Table(name = "supporters")
 public class Supporter extends Observable implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -40,7 +40,7 @@ public class Supporter extends Observable implements Serializable {
     @Email
     @Size(min = 5, max = 100)
     @Column(name = "supporter_email", length = 100, unique = true)
-    private String supporterEmail;
+    private String email;
 
     public Long getId() {
         return id;
@@ -74,12 +74,12 @@ public class Supporter extends Observable implements Serializable {
         this.birthday = birthday;
     }
 
-    public String getSupporterEmail() {
-        return supporterEmail;
+    public String getEmail() {
+        return email;
     }
 
-    public void setSupporterEmail(String supporterEmail) {
-        this.supporterEmail = supporterEmail;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
@@ -95,7 +95,7 @@ public class Supporter extends Observable implements Serializable {
             return false;
         if (getBirthday() != null ? !getBirthday().equals(supporter.getBirthday()) : supporter.getBirthday() != null)
             return false;
-        return getSupporterEmail() != null ? getSupporterEmail().equals(supporter.getSupporterEmail()) : supporter.getSupporterEmail() == null;
+        return getEmail() != null ? getEmail().equals(supporter.getEmail()) : supporter.getEmail() == null;
     }
 
     @Override
@@ -104,7 +104,7 @@ public class Supporter extends Observable implements Serializable {
         result = 31 * result + (getName() != null ? getName().hashCode() : 0);
         result = 31 * result + (getTeamId() != null ? getTeamId().hashCode() : 0);
         result = 31 * result + (getBirthday() != null ? getBirthday().hashCode() : 0);
-        result = 31 * result + (getSupporterEmail() != null ? getSupporterEmail().hashCode() : 0);
+        result = 31 * result + (getEmail() != null ? getEmail().hashCode() : 0);
         return result;
     }
 
@@ -115,7 +115,7 @@ public class Supporter extends Observable implements Serializable {
             ", name='" + name + '\'' +
             ", teamId='" + teamId + '\'' +
             ", birthday=" + birthday +
-            ", supporterEmail='" + supporterEmail + '\'' +
+            ", email='" + email + '\'' +
             '}';
     }
 }
