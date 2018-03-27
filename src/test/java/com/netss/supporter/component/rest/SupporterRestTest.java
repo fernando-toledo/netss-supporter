@@ -182,4 +182,34 @@ public class SupporterRestTest {
         Assert.assertEquals(1, SupportersAfterUpdate.size());
         Assert.assertEquals(updated, SupporterBuildHelper.supporterMariaUpdate(created.getId()));
     }
+
+    @Test
+    public void shouldAssociateSupporterWithCamapaign() throws Exception {
+
+        supporterRepository.deleteAll();
+
+        MvcResult createResult = mvc.perform(MockMvcRequestBuilders.post(SUPPORTER_API_BASE_PATH)
+            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMaria()))
+            .contentType(APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andReturn();
+
+        Supporter created = mapper.readValue(createResult.getResponse().getContentAsString() , Supporter.class);
+
+        List<Supporter> SupportersBeforeUpdate = supporterRepository.findAll();
+        assertEquals(1, SupportersBeforeUpdate.size());
+
+        MvcResult updateResult = mvc.perform(MockMvcRequestBuilders.put(SUPPORTER_API_BASE_PATH)
+            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMariaUpdate(created.getId())))
+            .contentType(APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
+
+        Supporter updated = mapper.readValue(updateResult.getResponse().getContentAsString() , Supporter.class);
+
+        List<Supporter> SupportersAfterUpdate = supporterRepository.findAll();
+
+        Assert.assertEquals(1, SupportersAfterUpdate.size());
+        Assert.assertEquals(updated, SupporterBuildHelper.supporterMariaUpdate(created.getId()));
+    }
 }

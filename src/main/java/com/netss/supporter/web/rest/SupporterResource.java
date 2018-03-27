@@ -43,7 +43,7 @@ public class SupporterResource {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Supporter create(@RequestBody @Valid Supporter supporter) {
-        return supporterRepository.save(supporter);
+        return supporterService.save(supporter);
     }
 
     @DeleteMapping("/{supporterId}")

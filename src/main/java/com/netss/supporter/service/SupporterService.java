@@ -26,4 +26,8 @@ public class SupporterService {
 
         return oldSupporter;
     }
+
+    public Supporter save(Supporter supporter) {
+        return supporterRepository.save(supporter);
+    }
 }
