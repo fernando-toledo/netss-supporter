@@ -1,14 +1,19 @@
 package com.netss.supporter.component.rest;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netss.supporter.component.util.CampaignsBuildHelper;
 import com.netss.supporter.component.util.SupporterBuildHelper;
 import com.netss.supporter.domain.Supporter;
+import com.netss.supporter.domain.SupporterCampaign;
 import com.netss.supporter.integration.amqp.SupporterMessageListener;
+import com.netss.supporter.integration.web.CampaignClient;
 import com.netss.supporter.repository.SupporterRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +28,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
@@ -34,6 +40,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @AutoConfigureMockMvc
 public class SupporterRestTest {
 
+    public static final String CAMPAIGNS_PATH = "/campaigns";
     private final String SUPPORTER_API_BASE_PATH = "/supporters";
 
     @Autowired
@@ -52,6 +59,9 @@ public class SupporterRestTest {
 
     @MockBean
     private SupporterMessageListener listener;
+
+    @MockBean
+    private CampaignClient campaignClient;
 
     @Test
     public void shouldGetAllSupporter() throws Exception {
@@ -184,7 +194,11 @@ public class SupporterRestTest {
     }
 
     @Test
-    public void shouldAssociateSupporterWithCamapaign() throws Exception {
+    public void shouldAssociateSupporterWithCampaignDuringUserCreation() throws Exception {
+
+        Mockito
+            .when(campaignClient.getCampaignsByTeamId(SupporterBuildHelper.supporterMaria().getTeamId()))
+            .thenReturn(Arrays.asList(CampaignsBuildHelper.campaignBlackFriday()));
 
         supporterRepository.deleteAll();
 
@@ -194,22 +208,29 @@ public class SupporterRestTest {
             .andExpect(MockMvcResultMatchers.status().isCreated())
             .andReturn();
 
-        Supporter created = mapper.readValue(createResult.getResponse().getContentAsString() , Supporter.class);
+        Supporter createdSupporter = mapper.readValue(createResult.getResponse().getContentAsString() , Supporter.class);
 
-        List<Supporter> SupportersBeforeUpdate = supporterRepository.findAll();
-        assertEquals(1, SupportersBeforeUpdate.size());
+        String getSupporterCampaignURL = new StringBuilder()
+            .append(SUPPORTER_API_BASE_PATH)
+            .append("/")
+            .append(SupporterBuildHelper.supporterMaria().getId())
+            .append(CAMPAIGNS_PATH)
+            .toString();
 
-        MvcResult updateResult = mvc.perform(MockMvcRequestBuilders.put(SUPPORTER_API_BASE_PATH)
-            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMariaUpdate(created.getId())))
+        MvcResult getSupporterCampaigns = mvc.perform(MockMvcRequestBuilders.get(getSupporterCampaignURL)
             .contentType(APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
 
-        Supporter updated = mapper.readValue(updateResult.getResponse().getContentAsString() , Supporter.class);
+        List<SupporterCampaign> supporterCampaigns = mapper.readValue(
+            getSupporterCampaigns.getResponse().getContentAsString(),
+            new TypeReference<List<Supporter>>(){});
 
-        List<Supporter> SupportersAfterUpdate = supporterRepository.findAll();
+        List<SupporterCampaign> supporterCampaignsFromDatabase = supporterRepository.getSupporterCampaignById(createdSupporter.getId());
 
-        Assert.assertEquals(1, SupportersAfterUpdate.size());
-        Assert.assertEquals(updated, SupporterBuildHelper.supporterMariaUpdate(created.getId()));
+        Assert.assertEquals(supporterCampaigns.size(), 1);
+        Assert.assertEquals(supporterCampaignsFromDatabase.size(), 1);
+
+        Assert.assertEquals(supporterCampaigns.stream().findFirst().get(), supporterCampaignsFromDatabase.stream().findFirst().get());
     }
 }
