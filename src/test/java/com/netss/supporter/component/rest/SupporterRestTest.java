@@ -7,18 +7,17 @@ import com.netss.supporter.domain.Supporter;
 import com.netss.supporter.integration.amqp.SupporterMessageListener;
 import com.netss.supporter.repository.SupporterRepository;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -30,17 +29,12 @@ import static junit.framework.TestCase.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@WebAppConfiguration
 @AutoConfigureMockMvc
 public class SupporterRestTest {
 
-    public static final String HTTP_LOCALHOST = "http://localhost:";
-    private static TestRestTemplate test;
     private final String SUPPORTER_API_BASE_PATH = "/supporters";
-    private final TestRestTemplate testRestTemplate = new TestRestTemplate();
-
-    @Value("${local.server.port}")
-    private int localPort;
 
     @Autowired
     private MockMvc mvc;
@@ -58,11 +52,6 @@ public class SupporterRestTest {
 
     @MockBean
     private SupporterMessageListener listener;
-
-    @BeforeClass
-    public static void setup(){
-        test = new TestRestTemplate();
-    }
 
     @Test
     public void shouldGetAllSupporter() throws Exception {
@@ -105,24 +94,21 @@ public class SupporterRestTest {
 
         supporterRepository.deleteAll();
 
-        ResponseEntity<Supporter> responseEntity = test.exchange(
-            String.format(HTTP_LOCALHOST + "%d%s", localPort, SUPPORTER_API_BASE_PATH),
-            HttpMethod.POST,
-            buildBasicHttpEntity(mapper.writeValueAsString(SupporterBuildHelper.supporterMaria())),
-            new ParameterizedTypeReference<Supporter>() {}
-        );
-
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.CREATED);
-
-        Supporter createdSupporter = responseEntity.getBody();
-
-        List<Supporter> supporters = supporterRepository.findAll();
-
-        assertEquals(1, supporters.size());
-
-        mvc.perform(MockMvcRequestBuilders.delete(String.format("/supporters/%s", createdSupporter.getId()))
+        MvcResult createResult = mvc.perform(MockMvcRequestBuilders.post(SUPPORTER_API_BASE_PATH)
+            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMaria()))
             .contentType(APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isNoContent())
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andReturn();
+
+        Supporter created = mapper.readValue(createResult.getResponse().getContentAsString() , Supporter.class);
+
+        List<Supporter> SupportersBeforeDeletion = supporterRepository.findAll();
+        assertEquals(1, SupportersBeforeDeletion.size());
+
+        mvc.perform(MockMvcRequestBuilders.delete(String.format("/supporters/%s", created.getId()))
+            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMaria()))
+            .contentType(APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
 
         List<Supporter> SupportersAfterDeletion = supporterRepository.findAll();
@@ -135,22 +121,18 @@ public class SupporterRestTest {
 
         supporterRepository.deleteAll();
 
-        ResponseEntity<Supporter> responseEntity = test.exchange(
-            String.format(HTTP_LOCALHOST + "%d%s", localPort, SUPPORTER_API_BASE_PATH),
-            HttpMethod.POST,
-            buildBasicHttpEntity(mapper.writeValueAsString(SupporterBuildHelper.supporterMaria())),
-            new ParameterizedTypeReference<Supporter>() {}
-        );
+        MvcResult createResult = mvc.perform(MockMvcRequestBuilders.post(SUPPORTER_API_BASE_PATH)
+            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMaria()))
+            .contentType(APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andReturn();
 
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.CREATED);
-
-        Supporter createdSupporter = responseEntity.getBody();
+        Supporter created = mapper.readValue(createResult.getResponse().getContentAsString() , Supporter.class);
 
         List<Supporter> supporters = supporterRepository.findAll();
         assertEquals(1, supporters.size());
 
-        MvcResult getResult = mvc.perform(MockMvcRequestBuilders
-            .get(String.format("/supporters/%s", supporters.stream().findFirst().get().getId()))
+        MvcResult getResult = mvc.perform(MockMvcRequestBuilders.get(String.format("/supporters/%s", supporters.stream().findFirst().get().getId()))
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
@@ -159,7 +141,7 @@ public class SupporterRestTest {
 
         List<Supporter> SupportersAfterDeletion = supporterRepository.findAll();
         assertEquals(1, SupportersAfterDeletion.size());
-        assertEquals(getSupporter, createdSupporter);
+        assertEquals(getSupporter, created);
 
     }
 
@@ -176,22 +158,19 @@ public class SupporterRestTest {
 
         supporterRepository.deleteAll();
 
-        ResponseEntity<Supporter> responseEntity = test.exchange(
-            String.format(HTTP_LOCALHOST + "%d%s", localPort, SUPPORTER_API_BASE_PATH),
-            HttpMethod.POST,
-            buildBasicHttpEntity(mapper.writeValueAsString(SupporterBuildHelper.supporterMaria())),
-            new ParameterizedTypeReference<Supporter>() {}
-        );
+        MvcResult createResult = mvc.perform(MockMvcRequestBuilders.post(SUPPORTER_API_BASE_PATH)
+            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMaria()))
+            .contentType(APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andReturn();
 
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.CREATED);
+        Supporter created = mapper.readValue(createResult.getResponse().getContentAsString() , Supporter.class);
 
-        List<Supporter> supporters = supporterRepository.findAll();
-        assertEquals(1, supporters.size());
-
-        Supporter createdSupporter = responseEntity.getBody();
+        List<Supporter> SupportersBeforeUpdate = supporterRepository.findAll();
+        assertEquals(1, SupportersBeforeUpdate.size());
 
         MvcResult updateResult = mvc.perform(MockMvcRequestBuilders.put(SUPPORTER_API_BASE_PATH)
-            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMariaUpdate(createdSupporter.getId())))
+            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMariaUpdate(created.getId())))
             .contentType(APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
@@ -201,6 +180,6 @@ public class SupporterRestTest {
         List<Supporter> SupportersAfterUpdate = supporterRepository.findAll();
 
         Assert.assertEquals(1, SupportersAfterUpdate.size());
-        Assert.assertEquals(updated, SupporterBuildHelper.supporterMariaUpdate(createdSupporter.getId()));
+        Assert.assertEquals(updated, SupporterBuildHelper.supporterMariaUpdate(created.getId()));
     }
 }
