@@ -213,7 +213,7 @@ public class SupporterRestTest {
         String getSupporterCampaignURL = new StringBuilder()
             .append(SUPPORTER_API_BASE_PATH)
             .append("/")
-            .append(SupporterBuildHelper.supporterMaria().getId())
+            .append(createdSupporter.getId())
             .append(CAMPAIGNS_PATH)
             .toString();
 

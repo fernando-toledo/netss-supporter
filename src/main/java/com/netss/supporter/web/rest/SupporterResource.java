@@ -1,6 +1,7 @@
 package com.netss.supporter.web.rest;
 
 
+import com.netss.supporter.domain.Campaign;
 import com.netss.supporter.domain.Supporter;
 import com.netss.supporter.repository.SupporterRepository;
 import com.netss.supporter.service.SupporterService;
@@ -32,6 +33,12 @@ public class SupporterResource {
             .findById(id)
             .map(c -> ResponseEntity.ok(c))
             .orElse(ResponseEntity.notFound().build()) ;
+    }
+
+    @GetMapping("/{supportId}/campaigns")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Campaign> getSupporterCampaigns(@PathVariable(value="supportId") Long id) {
+        return supporterService.getSupporterCampaigns(id);
     }
 
     @GetMapping
