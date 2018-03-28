@@ -35,6 +35,9 @@ public class SupporterService {
     }
 
     public Supporter updateSupporter(Supporter supporter) {
+
+        LOGGER.debug("update supporter", supporter);
+
         Supporter oldSupporter = supporterRepository.getOne(supporter.getId());
 
         oldSupporter.setName(supporter.getName());
@@ -47,6 +50,8 @@ public class SupporterService {
     }
 
     public Supporter save(Supporter supporter) {
+
+        LOGGER.debug("save supporter", supporter);
 
         Supporter createdSupporter = supporterRepository.save(supporter);
         associateSupporterWithCampaign(createdSupporter, Collections.emptyList());
@@ -90,6 +95,9 @@ public class SupporterService {
 
 
     public List<Campaign> getSupporterCampaigns(Long id) {
+
+        LOGGER.debug("get campaigns by supporter id", id);
+
         List<SupporterCampaign> supporterCampaigns = supporterRepository.getSupporterCampaignById(id);
 
         List<Long> campaignIds = supporterCampaigns.stream()
@@ -109,6 +117,8 @@ public class SupporterService {
     }
 
     public Optional<List<Campaign>> associate(Long id) {
+
+        LOGGER.debug("associate campaigns with supporter", id);
 
         Supporter supporter = supporterRepository
             .findById(id)
