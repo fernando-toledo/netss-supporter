@@ -14,6 +14,7 @@ logging:
     level:
         ROOT: DEBUG
         com.netss: DEBUG
+        com.netss.supporter.integration.web.CampaignClient: DEBUG
 
 spring:
     profiles:

@@ -3,8 +3,7 @@
 <configuration scan="true">
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="com.netss" level="INFO"/>
-
+    <logger name="com.netss" level="DEBUG"/>
     <logger name="javax.activation" level="WARN"/>
     <logger name="javax.xml.bind" level="WARN"/>
     <logger name="ch.qos.logback" level="WARN"/>
