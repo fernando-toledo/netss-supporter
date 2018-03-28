@@ -21,6 +21,7 @@ hystrix:
                     thread:
                         timeoutInMilliseconds: 5000
 feign:
+  hystrix.enabled: true
   client:
     config:
       default:

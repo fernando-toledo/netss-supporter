@@ -8,15 +8,23 @@ import com.netss.supporter.exception.SupporterNotFoundException;
 import com.netss.supporter.integration.web.CampaignClient;
 import com.netss.supporter.repository.SupporterCampaignRepository;
 import com.netss.supporter.repository.SupporterRepository;
+import feign.FeignException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class SupporterService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SupporterService.class);
 
     private final SupporterRepository supporterRepository;
     private final CampaignClient campaignClient;
@@ -48,7 +56,15 @@ public class SupporterService {
     }
 
     private List<Campaign> associateSupporterWithCampaign(Supporter createdSupporter) {
-        List<Campaign> campaigns = campaignClient.getCampaignsByTeamId(createdSupporter.getTeamId());
+
+        List<Campaign> campaigns;
+
+        try {
+            campaigns = campaignClient.getCampaignsByTeamId(createdSupporter.getTeamId());
+        } catch (FeignException ex){
+            LOGGER.error("Error during campaign call",ex);
+            campaigns = Collections.emptyList();
+        }
 
         if(campaigns.isEmpty())
             return campaigns;
@@ -77,7 +93,15 @@ public class SupporterService {
             .collect(Collectors.toList());
 
         Map<String, Object> campaignQueryParameters = ImmutableMap.of(campaignClient.CAMPAIGN_ID_QUERY_PARAM, campaignIds);
-        List<Campaign> campaigns = campaignClient.getCampaignsById(campaignQueryParameters);
+
+        List<Campaign> campaigns;
+
+        try {
+            campaigns = campaignClient.getCampaignsById(campaignQueryParameters);
+        } catch (FeignException ex){
+            LOGGER.error("Error during campaign call",ex);
+            campaigns = Collections.emptyList();
+        }
 
         return campaigns;
     }
