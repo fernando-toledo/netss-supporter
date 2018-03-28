@@ -5,6 +5,7 @@ import com.netss.supporter.config.FeignConfiguration;
 import com.netss.supporter.domain.Campaign;
 import feign.Headers;
 import feign.QueryMap;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,12 +22,11 @@ public interface CampaignClient {
     String CAMPAIGN_ID_QUERY_PARAM = "campaignId";
 
     //TODO: user=fh message='review later, scalability issues if campaign grows'
-    //@Cacheable("campaign-team-by-id")
+    @Cacheable(value="campaign-team-by-id")
     @Headers("Content-Type: application/json")
     @RequestMapping(method = GET, value = "/campaigns/team/{teamId}")
     List<Campaign> getCampaignsByTeamId(@PathVariable("teamId") String teamId);
 
-    //@Cacheable("campaign-by-ids")
     @Headers("Content-Type: application/json")
     @RequestMapping(method = GET, value = "/campaigns")
     List<Campaign> getCampaignsById(@QueryMap Map<String, Object> queryMap);

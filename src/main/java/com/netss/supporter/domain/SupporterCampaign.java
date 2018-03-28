@@ -1,6 +1,5 @@
 package com.netss.supporter.domain;
 
-import lombok.Builder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
