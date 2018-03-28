@@ -1,5 +1,6 @@
 package com.netss.supporter.domain;
 
+import lombok.Builder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -18,25 +19,13 @@ public class SupporterCampaign {
     @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
-//    @Column(name = "supporter_id")
-//    @NotNull
-//    private Long supporterId;
+    @Column(name = "supporter_id")
+    @NotNull
+    private Long supporterId;
 
     @Column(name = "campaign_id")
     @NotNull
     private Long campaignId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
-    private Supporter supporter;
-
-    public Supporter getSupporter() {
-        return supporter;
-    }
-
-    public void setSupporter(Supporter supporter) {
-        this.supporter = supporter;
-    }
 
     public Long getId() {
         return id;
@@ -46,13 +35,13 @@ public class SupporterCampaign {
         this.id = id;
     }
 
-//    public @NotNull Long getSupporterId() {
-//        return supporterId;
-//    }
-//
-//    public void setSupporterId(Long supporterId) {
-//        this.supporterId = supporterId;
-//    }
+    public @NotNull Long getSupporterId() {
+        return supporterId;
+    }
+
+    public void setSupporterId(Long supporterId) {
+        this.supporterId = supporterId;
+    }
 
     public @NotNull Long getCampaignId() {
         return campaignId;
@@ -70,7 +59,7 @@ public class SupporterCampaign {
         SupporterCampaign that = (SupporterCampaign) o;
 
         if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
-        if (supporter.getId() != null ? !supporter.getId().equals(that.supporter.getId()) : that.supporter.getId() != null)
+        if (getSupporterId() != null ? !getSupporterId().equals(that.getSupporterId()) : that.getSupporterId() != null)
             return false;
         return getCampaignId() != null ? getCampaignId().equals(that.getCampaignId()) : that.getCampaignId() == null;
     }
@@ -78,7 +67,7 @@ public class SupporterCampaign {
     @Override
     public int hashCode() {
         int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (supporter.getId() != null ? supporter.getId().hashCode() : 0);
+        result = 31 * result + (getSupporterId() != null ? getSupporterId().hashCode() : 0);
         result = 31 * result + (getCampaignId() != null ? getCampaignId().hashCode() : 0);
         return result;
     }
@@ -87,8 +76,8 @@ public class SupporterCampaign {
     public String toString() {
         return "SupporterCampaign{" +
             "id=" + id +
-            ", supporterId='" + supporter.getId() + '\'' +
-            ", campaignId='" + campaignId + '\'' +
+            ", supporterId=" + supporterId +
+            ", campaignId=" + campaignId +
             '}';
     }
 }

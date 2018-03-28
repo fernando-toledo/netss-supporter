@@ -11,11 +11,9 @@ import java.util.List;
 
 
 /**
- * Spring Data JPA repository for the Supporter entity.
+ * Spring Data JPA repository for the SupporterCampaign entity.
  */
 @Repository
-public interface SupporterRepository extends JpaRepository<Supporter, Long> {
+public interface SupporterCampaignRepository extends JpaRepository<SupporterCampaign, Long> {
 
-    @Query("select u from SupporterCampaign u where u.supporterId = :id")
-    List<SupporterCampaign> getSupporterCampaignById(@Param("id") Long id);
 }

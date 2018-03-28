@@ -3,6 +3,7 @@ package com.netss.supporter.web.rest;
 
 import com.netss.supporter.domain.Campaign;
 import com.netss.supporter.domain.Supporter;
+import com.netss.supporter.domain.SupporterCampaign;
 import com.netss.supporter.repository.SupporterRepository;
 import com.netss.supporter.service.SupporterService;
 import org.springframework.http.HttpStatus;
@@ -29,12 +30,10 @@ public class SupporterResource {
     @GetMapping("/{supportId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Supporter> get(@PathVariable(value="supportId") Long id) {
-        ResponseEntity responseEntity = supporterRepository
+        return supporterRepository
             .findById(id)
             .map(c -> ResponseEntity.ok(c))
             .orElse(ResponseEntity.notFound().build());
-
-        return responseEntity;
     }
 
     @GetMapping("/{supportId}/campaigns")
@@ -53,6 +52,16 @@ public class SupporterResource {
     @ResponseStatus(HttpStatus.CREATED)
     public Supporter create(@RequestBody @Valid Supporter supporter) {
         return supporterService.save(supporter);
+    }
+
+    @PostMapping("/{supporterId}/campaigns:associate")
+    public ResponseEntity<Campaign> associateCampaign(@PathVariable(value="supporterId") Long id) {
+
+        ResponseEntity responseEntity = supporterService
+            .associate(id)
+            .map(c -> ResponseEntity.ok(c))
+            .orElse(ResponseEntity.notFound().build());
+        return responseEntity;
     }
 
     @DeleteMapping("/{supporterId}")

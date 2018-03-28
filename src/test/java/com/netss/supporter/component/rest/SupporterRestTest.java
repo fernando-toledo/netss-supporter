@@ -5,15 +5,19 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netss.supporter.component.util.CampaignsBuildHelper;
 import com.netss.supporter.component.util.SupporterBuildHelper;
+import com.netss.supporter.domain.Campaign;
 import com.netss.supporter.domain.Supporter;
 import com.netss.supporter.domain.SupporterCampaign;
 import com.netss.supporter.integration.amqp.SupporterMessageListener;
 import com.netss.supporter.integration.web.CampaignClient;
+import com.netss.supporter.repository.SupporterCampaignRepository;
 import com.netss.supporter.repository.SupporterRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.Any;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +33,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
@@ -51,6 +56,9 @@ public class SupporterRestTest {
 
     @Autowired
     private SupporterRepository supporterRepository;
+
+    @Autowired
+    private SupporterCampaignRepository supporterCampaignRepository;
 
     //=========================
     //INTEGRATION MOCKED BEANS:
@@ -194,10 +202,13 @@ public class SupporterRestTest {
     }
 
     @Test
-    public void shouldAssociateSupporterWithCampaignDuringUserCreation() throws Exception {
+    public void shouldAssociateSupporterWithCampaignDuringSupporterCreation() throws Exception {
 
         Mockito
-            .when(campaignClient.getCampaignsById(null))
+            .when(campaignClient.getCampaignsById(ArgumentMatchers.isNotNull()))
+            .thenReturn(Arrays.asList(CampaignsBuildHelper.campaignBlackFriday()));
+        Mockito
+            .when(campaignClient.getCampaignsByTeamId(ArgumentMatchers.isNotNull()))
             .thenReturn(Arrays.asList(CampaignsBuildHelper.campaignBlackFriday()));
 
         supporterRepository.deleteAll();
@@ -210,27 +221,108 @@ public class SupporterRestTest {
 
         Supporter createdSupporter = mapper.readValue(createResult.getResponse().getContentAsString() , Supporter.class);
 
-        String getSupporterCampaignURL = new StringBuilder()
-            .append(SUPPORTER_API_BASE_PATH)
-            .append("/")
-            .append(createdSupporter.getId())
-            .append(CAMPAIGNS_PATH)
-            .toString();
+        String getSupporterCampaignURL = getSupporterCampaignURL(createdSupporter);
 
         MvcResult getSupporterCampaigns = mvc.perform(MockMvcRequestBuilders.get(getSupporterCampaignURL)
             .contentType(APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andReturn();
 
-        List<SupporterCampaign> supporterCampaigns = mapper.readValue(
+        List<Campaign> supporterCampaigns = mapper.readValue(
             getSupporterCampaigns.getResponse().getContentAsString(),
-            new TypeReference<List<Supporter>>(){});
+            new TypeReference<List<Campaign>>(){});
 
         List<SupporterCampaign> supporterCampaignsFromDatabase = supporterRepository.getSupporterCampaignById(createdSupporter.getId());
 
         Assert.assertEquals(supporterCampaigns.size(), 1);
         Assert.assertEquals(supporterCampaignsFromDatabase.size(), 1);
 
-        Assert.assertEquals(supporterCampaigns.stream().findFirst().get(), supporterCampaignsFromDatabase.stream().findFirst().get());
+        Assert.assertEquals(
+            supporterCampaigns.stream().findFirst().get().getId(),
+            supporterCampaignsFromDatabase.stream().findFirst().get().getCampaignId());
+    }
+
+    @Test
+    public void shouldAssociateSupporterWithCampaignAfterSupporterCreation() throws Exception {
+
+        Mockito
+            .when(campaignClient.getCampaignsById(ArgumentMatchers.isNotNull()))
+            .thenReturn(Collections.emptyList());
+        Mockito
+            .when(campaignClient.getCampaignsByTeamId(ArgumentMatchers.isNotNull()))
+            .thenReturn(Collections.emptyList());
+
+        supporterRepository.deleteAll();
+        supporterCampaignRepository.deleteAll();
+
+        MvcResult createResult = mvc.perform(MockMvcRequestBuilders.post(SUPPORTER_API_BASE_PATH)
+            .content(mapper.writeValueAsString(SupporterBuildHelper.supporterMaria()))
+            .contentType(APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andReturn();
+
+        Supporter createdSupporter = mapper.readValue(createResult.getResponse().getContentAsString() , Supporter.class);
+
+        String getSupporterCampaignURL = getSupporterCampaignURL(createdSupporter);
+
+        MvcResult getSupporterCampaigns = mvc.perform(MockMvcRequestBuilders.get(getSupporterCampaignURL)
+            .contentType(APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
+
+        List<Campaign> supporterCampaigns = mapper.readValue(
+            getSupporterCampaigns.getResponse().getContentAsString(),
+            new TypeReference<List<Campaign>>(){});
+
+        List<SupporterCampaign> supporterCampaignsFromDatabase = supporterRepository.getSupporterCampaignById(createdSupporter.getId());
+
+        Assert.assertEquals(supporterCampaigns.size(), 0);
+        Assert.assertEquals(supporterCampaignsFromDatabase.size(), 0);
+
+        Mockito
+            .when(campaignClient.getCampaignsById(ArgumentMatchers.isNotNull()))
+            .thenReturn(Arrays.asList(CampaignsBuildHelper.campaignBlackFriday()));
+        Mockito
+            .when(campaignClient.getCampaignsByTeamId(ArgumentMatchers.isNotNull()))
+            .thenReturn(Arrays.asList(CampaignsBuildHelper.campaignBlackFriday()));
+
+        mvc.perform(MockMvcRequestBuilders.post(getSupporterAssociateCampaignURL(createdSupporter))
+            .contentType(APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
+
+        MvcResult getSupporterCampaignsAfterAssociation = mvc.perform(MockMvcRequestBuilders.get(getSupporterCampaignURL)
+            .contentType(APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andReturn();
+
+        List<Campaign> supporterCampaignsAfterAssociation = mapper.readValue(
+            getSupporterCampaignsAfterAssociation.getResponse().getContentAsString(),
+            new TypeReference<List<Campaign>>(){});
+
+        List<SupporterCampaign> supporterCampaignsFromDatabaseAfterAssociation = supporterRepository.getSupporterCampaignById(createdSupporter.getId());
+
+        Assert.assertEquals(
+            supporterCampaignsAfterAssociation.stream().findFirst().get().getId(),
+            supporterCampaignsFromDatabaseAfterAssociation.stream().findFirst().get().getCampaignId());
+    }
+
+    private String getSupporterCampaignURL(Supporter createdSupporter) {
+        return new StringBuilder()
+                .append(SUPPORTER_API_BASE_PATH)
+                .append("/")
+                .append(createdSupporter.getId())
+                .append(CAMPAIGNS_PATH)
+                .toString();
+    }
+
+    private String getSupporterAssociateCampaignURL(Supporter createdSupporter) {
+        return new StringBuilder()
+            .append(SUPPORTER_API_BASE_PATH)
+            .append("/")
+            .append(createdSupporter.getId())
+            .append(CAMPAIGNS_PATH)
+            .append(":associate")
+            .toString();
     }
 }

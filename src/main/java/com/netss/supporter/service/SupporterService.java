@@ -4,13 +4,17 @@ import com.google.common.collect.ImmutableMap;
 import com.netss.supporter.domain.Campaign;
 import com.netss.supporter.domain.Supporter;
 import com.netss.supporter.domain.SupporterCampaign;
+import com.netss.supporter.exception.SupporterNotFoundException;
 import com.netss.supporter.integration.web.CampaignClient;
+import com.netss.supporter.repository.SupporterCampaignRepository;
 import com.netss.supporter.repository.SupporterRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,10 +23,12 @@ public class SupporterService {
 
     private final SupporterRepository supporterRepository;
     private final CampaignClient campaignClient;
+    private final SupporterCampaignRepository supporterCampaignRepository;
 
-    public SupporterService(SupporterRepository supporterRepository, CampaignClient campaignClient) {
+    public SupporterService(SupporterRepository supporterRepository, CampaignClient campaignClient, SupporterCampaignRepository supporterCampaignRepository) {
         this.supporterRepository = supporterRepository;
         this.campaignClient = campaignClient;
+        this.supporterCampaignRepository = supporterCampaignRepository;
     }
 
     public Supporter updateSupporter(Supporter supporter) {
@@ -38,7 +44,31 @@ public class SupporterService {
     }
 
     public Supporter save(Supporter supporter) {
-        return supporterRepository.save(supporter);
+
+        Supporter createdSupporter = supporterRepository.save(supporter);
+        associateSupporterWithCampaign(createdSupporter);
+        return createdSupporter;
+    }
+
+    private List<Campaign> associateSupporterWithCampaign(Supporter createdSupporter) {
+        List<Campaign> campaigns = campaignClient.getCampaignsByTeamId(createdSupporter.getTeamId());
+
+        if(campaigns.isEmpty())
+            return campaigns;
+
+        List<SupporterCampaign> supporterCampaigns = campaigns
+            .stream()
+            .map( campaign -> {
+                SupporterCampaign s = new SupporterCampaign();
+                s.setCampaignId(campaign.getId());
+                s.setSupporterId(createdSupporter.getId());
+                return s;
+            })
+            .collect(Collectors.toList());
+
+        //TODO: user=fh message='add relationship between supporter and supporter-campaings entities'
+        supporterCampaignRepository.saveAll(supporterCampaigns);
+        return campaigns;
     }
 
 
@@ -52,5 +82,14 @@ public class SupporterService {
         Map<String, Object> campaignQueryParameters = ImmutableMap.of(campaignClient.CAMPAIGN_ID_QUERY_PARAM, campaingIds);
         List<Campaign> campaigns = campaignClient.getCampaignsById(campaignQueryParameters);
         return campaigns;
+    }
+
+    public Optional<List<Campaign>> associate(Long id) {
+
+        Supporter supporter = supporterRepository
+            .findById(id)
+            .orElseThrow(SupporterNotFoundException::new);
+
+        return Optional.of(associateSupporterWithCampaign(supporter));
     }
 }
