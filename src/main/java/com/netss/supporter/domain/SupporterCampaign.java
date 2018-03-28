@@ -50,6 +50,7 @@ public class SupporterCampaign {
         this.campaignId = campaignId;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -57,7 +58,6 @@ public class SupporterCampaign {
 
         SupporterCampaign that = (SupporterCampaign) o;
 
-        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) return false;
         if (getSupporterId() != null ? !getSupporterId().equals(that.getSupporterId()) : that.getSupporterId() != null)
             return false;
         return getCampaignId() != null ? getCampaignId().equals(that.getCampaignId()) : that.getCampaignId() == null;
@@ -65,8 +65,7 @@ public class SupporterCampaign {
 
     @Override
     public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getSupporterId() != null ? getSupporterId().hashCode() : 0);
+        int result = getSupporterId() != null ? getSupporterId().hashCode() : 0;
         result = 31 * result + (getCampaignId() != null ? getCampaignId().hashCode() : 0);
         return result;
     }

@@ -1,6 +1,5 @@
 package com.netss.supporter.service;
 
-import com.google.common.collect.ImmutableMap;
 import com.netss.supporter.domain.Campaign;
 import com.netss.supporter.domain.Supporter;
 import com.netss.supporter.domain.SupporterCampaign;
@@ -54,7 +53,7 @@ public class SupporterService {
         return createdSupporter;
     }
 
-    private List<Campaign> associateSupporterWithCampaign(Supporter supporter, List<SupporterCampaign> currentCampaings) {
+    private List<Campaign> associateSupporterWithCampaign(Supporter supporter, List<SupporterCampaign> currentSupportCampaigns) {
 
         List<Campaign> campaigns;
 
@@ -80,7 +79,7 @@ public class SupporterService {
 
         Set<SupporterCampaign> filteredSupporterCampaigns = Stream
             .concat(
-                new HashSet<>(currentCampaings).stream(),
+                new HashSet<>(currentSupportCampaigns).stream(),
                 new HashSet<>(supporterCampaigns).stream())
             .collect(Collectors.toSet());
 
@@ -97,12 +96,10 @@ public class SupporterService {
             .map( sc -> sc.getCampaignId())
             .collect(Collectors.toList());
 
-        Map<String, Object> campaignQueryParameters = ImmutableMap.of(campaignClient.CAMPAIGN_ID_QUERY_PARAM, campaignIds);
-
         List<Campaign> campaigns;
 
         try {
-            campaigns = campaignClient.getCampaignsById(campaignQueryParameters);
+            campaigns = campaignClient.getCampaignsById(campaignIds);
         } catch (FeignException ex){
             LOGGER.error("Error during campaign call",ex);
             campaigns = Collections.emptyList();

@@ -4,14 +4,13 @@ package com.netss.supporter.integration.web;
 import com.netss.supporter.config.FeignConfiguration;
 import com.netss.supporter.domain.Campaign;
 import feign.Headers;
-import feign.QueryMap;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -29,5 +28,5 @@ public interface CampaignClient {
 
     @Headers("Content-Type: application/json")
     @RequestMapping(method = GET, value = "/campaigns")
-    List<Campaign> getCampaignsById(@QueryMap Map<String, Object> queryMap);
+    List<Campaign> getCampaignsById(@RequestParam(CAMPAIGN_ID_QUERY_PARAM) List<Long> campaignsId);
 }

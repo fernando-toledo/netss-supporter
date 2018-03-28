@@ -17,7 +17,7 @@ public class CampaignClientFallback implements CampaignClient {
     }
 
     @Override
-    public List<Campaign> getCampaignsById(Map<String, Object> queryMap) {
+    public List<Campaign> getCampaignsById(List<Long> campaignsId) {
         return emptyList();
     }
 
