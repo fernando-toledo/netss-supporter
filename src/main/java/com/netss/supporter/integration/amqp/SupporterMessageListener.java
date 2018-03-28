@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 @Component
 public class SupporterMessageListener {
 
-    private static final Logger log = LoggerFactory.getLogger(SupporterMessageListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SupporterMessageListener.class);
 
     private ObjectMapper objectMapper;
 
@@ -29,13 +29,13 @@ public class SupporterMessageListener {
 
     @RabbitListener(queues = UPDATE_CAMPAIGN_MESSAGE_QUEUE)
     public void receiveMessage(Message message) {
-        log.info("Message from {} received", UPDATE_CAMPAIGN_MESSAGE_QUEUE);
+        LOGGER.info("Message from {} received", UPDATE_CAMPAIGN_MESSAGE_QUEUE);
         try {
             List<Campaign> campaigns = objectMapper.readValue(message.getBody(), new TypeReference<List<Campaign>>(){});
             List<Long> ids = campaigns.stream().map(c -> c.getId()).collect(toList());
-            log.info("Message successfully processed... {}", ids);
+            LOGGER.info("Message successfully processed... {}", ids);
         } catch (IOException e) {
-            log.error("Fail to read message", e);
+            LOGGER.error("Fail to read message", e);
         }
     }
 

@@ -197,7 +197,7 @@ public class SupporterRestTest {
     public void shouldAssociateSupporterWithCampaignDuringUserCreation() throws Exception {
 
         Mockito
-            .when(campaignClient.getCampaignsByTeamId(SupporterBuildHelper.supporterMaria().getTeamId()))
+            .when(campaignClient.getCampaignsById(null))
             .thenReturn(Arrays.asList(CampaignsBuildHelper.campaignBlackFriday()));
 
         supporterRepository.deleteAll();

@@ -3,6 +3,8 @@ package com.netss.supporter.repository;
 import com.netss.supporter.domain.Supporter;
 import com.netss.supporter.domain.SupporterCampaign;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,5 +16,6 @@ import java.util.List;
 @Repository
 public interface SupporterRepository extends JpaRepository<Supporter, Long> {
 
-    List<SupporterCampaign> getSupporterCampaignById(Long id);
+    @Query("select u from SupporterCampaign u where u.supporter.id = :id")
+    List<SupporterCampaign> getSupporterCampaignById(@Param("id") Long id);
 }

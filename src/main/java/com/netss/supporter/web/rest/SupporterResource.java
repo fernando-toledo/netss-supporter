@@ -29,10 +29,12 @@ public class SupporterResource {
     @GetMapping("/{supportId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Supporter> get(@PathVariable(value="supportId") Long id) {
-        return supporterRepository
+        ResponseEntity responseEntity = supporterRepository
             .findById(id)
             .map(c -> ResponseEntity.ok(c))
-            .orElse(ResponseEntity.notFound().build()) ;
+            .orElse(ResponseEntity.notFound().build());
+
+        return responseEntity;
     }
 
     @GetMapping("/{supportId}/campaigns")

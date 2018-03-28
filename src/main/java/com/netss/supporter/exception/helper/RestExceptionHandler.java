@@ -1,5 +1,8 @@
 package com.netss.supporter.exception.helper;
 
+import com.netss.supporter.exception.GlobalExceptionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -18,11 +21,14 @@ import javax.validation.ConstraintViolationException;
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     public static final String MALFORMED_JSON_REQUEST = "Malformed JSON request";
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String error = MALFORMED_JSON_REQUEST;
+        LOGGER.error(MALFORMED_JSON_REQUEST, ex);
         return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, error, ex));
     }
 
@@ -36,6 +42,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND);
         apiError.setMessage(ex.getMessage());
 
+        LOGGER.error("Entity not found", ex);
+
         return buildResponseEntity(apiError);
     }
 
@@ -43,6 +51,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleConstraintViolation(
         ConstraintViolationException ex,
         WebRequest request) {
+
+        LOGGER.error("Constraint Violation", ex);
 
         return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, ex));
     }

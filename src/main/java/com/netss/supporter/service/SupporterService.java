@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.netss.supporter.domain.Campaign;
 import com.netss.supporter.domain.Supporter;
 import com.netss.supporter.domain.SupporterCampaign;
-import com.netss.supporter.exception.SupporterNotFoundException;
 import com.netss.supporter.integration.web.CampaignClient;
 import com.netss.supporter.repository.SupporterRepository;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,6 @@ public class SupporterService {
 
 
     public List<Campaign> getSupporterCampaigns(Long id) {
-        Supporter supporter = supporterRepository.findById(id).orElseThrow(SupporterNotFoundException::new);
         List<SupporterCampaign> supporterCampaigns = supporterRepository.getSupporterCampaignById(id);
 
         List<Long> campaingIds = supporterCampaigns.stream()
@@ -52,11 +50,7 @@ public class SupporterService {
             .collect(Collectors.toList());
 
         Map<String, Object> campaignQueryParameters = ImmutableMap.of(campaignClient.CAMPAIGN_ID_QUERY_PARAM, campaingIds);
-
-        //TODO: user=fh message='change to get campaign only by the ids, not team'
-        //List<Campaign> campaigns = campaignClient.getCampaignsByTeamId(supporter.getTeamId());
         List<Campaign> campaigns = campaignClient.getCampaignsById(campaignQueryParameters);
-
-        return null;
+        return campaigns;
     }
 }

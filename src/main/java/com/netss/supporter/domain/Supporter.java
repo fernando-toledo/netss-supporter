@@ -9,7 +9,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Observable;
+import java.util.Set;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -41,6 +43,19 @@ public class Supporter extends Observable implements Serializable {
     @Size(min = 5, max = 100)
     @Column(name = "supporter_email", length = 100, unique = true)
     private String email;
+
+    @OneToMany(cascade = CascadeType.ALL,
+        fetch = FetchType.LAZY,
+        mappedBy = "supporter")
+    private Set<SupporterCampaign> supporterCampaigns = new HashSet<>();
+
+    public Set<SupporterCampaign> getSupporterCampaigns() {
+        return supporterCampaigns;
+    }
+
+    public void setSupporterCampaigns(Set<SupporterCampaign> supporterCampaigns) {
+        this.supporterCampaigns = supporterCampaigns;
+    }
 
     public Long getId() {
         return id;
