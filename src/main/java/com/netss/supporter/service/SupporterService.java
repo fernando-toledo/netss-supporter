@@ -75,12 +75,13 @@ public class SupporterService {
     public List<Campaign> getSupporterCampaigns(Long id) {
         List<SupporterCampaign> supporterCampaigns = supporterRepository.getSupporterCampaignById(id);
 
-        List<Long> campaingIds = supporterCampaigns.stream()
+        List<Long> campaignIds = supporterCampaigns.stream()
             .map( sc -> sc.getCampaignId())
             .collect(Collectors.toList());
 
-        Map<String, Object> campaignQueryParameters = ImmutableMap.of(campaignClient.CAMPAIGN_ID_QUERY_PARAM, campaingIds);
+        Map<String, Object> campaignQueryParameters = ImmutableMap.of(campaignClient.CAMPAIGN_ID_QUERY_PARAM, campaignIds);
         List<Campaign> campaigns = campaignClient.getCampaignsById(campaignQueryParameters);
+
         return campaigns;
     }
 
@@ -91,5 +92,9 @@ public class SupporterService {
             .orElseThrow(SupporterNotFoundException::new);
 
         return Optional.of(associateSupporterWithCampaign(supporter));
+    }
+
+    public void updateSupporterCampaigns(List<Long> campaignIds) {
+        //TODO: user=fh message='business rules are not specified'
     }
 }
