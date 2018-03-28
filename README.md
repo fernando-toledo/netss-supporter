@@ -44,7 +44,7 @@ Primeiro crie o release do docker com o comando
     
 E depois execute o compose: 
   
-    docker-compose -f src/main/docker/app_dev.yml up -d
+    docker-compose -f src/main/docker/app.yml up -d
 
 
 ## Continuous Integration (optional)
