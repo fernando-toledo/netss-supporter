@@ -15,11 +15,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -52,16 +50,16 @@ public class SupporterService {
     public Supporter save(Supporter supporter) {
 
         Supporter createdSupporter = supporterRepository.save(supporter);
-        associateSupporterWithCampaign(createdSupporter);
+        associateSupporterWithCampaign(createdSupporter, Collections.emptyList());
         return createdSupporter;
     }
 
-    private List<Campaign> associateSupporterWithCampaign(Supporter createdSupporter) {
+    private List<Campaign> associateSupporterWithCampaign(Supporter supporter, List<SupporterCampaign> currentCampaings) {
 
         List<Campaign> campaigns;
 
         try {
-            campaigns = campaignClient.getCampaignsByTeamId(createdSupporter.getTeamId());
+            campaigns = campaignClient.getCampaignsByTeamId(supporter.getTeamId());
         } catch (FeignException ex){
             LOGGER.error("Error during campaign call",ex);
             campaigns = Collections.emptyList();
@@ -75,13 +73,19 @@ public class SupporterService {
             .map( campaign -> {
                 SupporterCampaign s = new SupporterCampaign();
                 s.setCampaignId(campaign.getId());
-                s.setSupporterId(createdSupporter.getId());
+                s.setSupporterId(supporter.getId());
                 return s;
             })
             .collect(Collectors.toList());
 
+        Set<SupporterCampaign> filteredSupporterCampaigns = Stream
+            .concat(
+                new HashSet<>(currentCampaings).stream(),
+                new HashSet<>(supporterCampaigns).stream())
+            .collect(Collectors.toSet());
+
         //TODO: user=fh message='add relationship between supporter and supporter-campaings entities'
-        supporterCampaignRepository.saveAll(supporterCampaigns);
+        supporterCampaignRepository.saveAll(filteredSupporterCampaigns);
         return campaigns;
     }
 
@@ -113,7 +117,10 @@ public class SupporterService {
             .findById(id)
             .orElseThrow(SupporterNotFoundException::new);
 
-        return Optional.of(associateSupporterWithCampaign(supporter));
+        //TODO: user=fh message='associate supporter entity with supporterCampaign'
+        List<SupporterCampaign> supporterCampaigns = supporterRepository.getSupporterCampaignById(supporter.getId());
+
+        return Optional.of(associateSupporterWithCampaign(supporter, supporterCampaigns));
     }
 
     @CacheEvict(value="campaign-team-by-id", allEntries=true)
